@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle, Heart } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -10,7 +11,7 @@ export function Hero() {
           <h1>Better care for your <span>best friend.</span></h1>
           <p className="hero__copy">Everything your pet needs, thoughtfully organized in one place—from everyday wellness to lifelong health records.</p>
           <div className="hero__actions">
-            <a className="button" href="#get-started">Start caring better <ArrowRight aria-hidden="true" /></a>
+            <Link className="button" href="/dashboard">Start caring better <ArrowRight aria-hidden="true" /></Link>
             <a className="button button--outline" href="#services">Explore our services</a>
           </div>
           <div className="hero__trust" aria-label="Service benefits">

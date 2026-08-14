@@ -1,6 +1,7 @@
 "use client";
 
 import { List, X } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
@@ -32,8 +33,8 @@ export function Navbar() {
             {links.map(([label, href]) => <a key={label} href={href} onClick={() => setOpen(false)}>{label}</a>)}
           </div>
           <div className="nav-actions">
-            <a className="text-link" href="#get-started" onClick={() => setOpen(false)}>Log in</a>
-            <a className="button button--small" href="#get-started" onClick={() => setOpen(false)}>Get started</a>
+            <Link className="text-link" href="/dashboard" onClick={() => setOpen(false)}>Log in</Link>
+            <Link className="button button--small" href="/dashboard" onClick={() => setOpen(false)}>Get started</Link>
           </div>
         </nav>
       </div>

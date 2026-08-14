@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   Bell, CalendarBlank, CaretDown, CaretLeft, CaretRight, ChatCircle, CreditCard,
   FileText, Gear, House, List, MagnifyingGlass, PawPrint, Plus, SignOut,
@@ -54,7 +55,7 @@ export function Dashboard() {
   return (
     <div className={styles.shell}>
       <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ""}`}>
-        <div className={styles.brand}><span><PawPrint weight="fill" /></span><div><strong>PetCare</strong><small>Management System</small></div></div>
+        <Link href="/" className={styles.brand} aria-label="Return to PawCare homepage"><span><PawPrint weight="fill" /></span><div><strong>Paw<span>Care</span></strong><small>Management System</small></div></Link>
         <button className={styles.sidebarClose} onClick={() => setMenuOpen(false)} aria-label="Close navigation"><X /></button>
         <nav aria-label="Dashboard navigation" className={styles.nav}>
           {navigation.map(({ label, icon: Icon, active }) => <a className={active ? styles.active : ""} href={`#${label.toLowerCase().replaceAll(" ", "-")}`} key={label} onClick={() => setMenuOpen(false)}><Icon weight={active ? "fill" : "regular"} /><span>{label}</span></a>)}
@@ -68,6 +69,7 @@ export function Dashboard() {
       <main className={styles.main}>
         <header className={styles.topbar}>
           <button className={styles.menuButton} onClick={() => setMenuOpen(true)} aria-label="Open navigation"><List /></button>
+          <Link className={styles.backHome} href="/">← Public website</Link>
           <label className={styles.search}><MagnifyingGlass /><input type="search" placeholder="Search anything..." aria-label="Search dashboard" /></label>
           <div className={styles.headerActions}>
             <button aria-label="Notifications"><Bell /><i>3</i></button><button aria-label="Messages"><EnvelopeSimple /><i>2</i></button>
