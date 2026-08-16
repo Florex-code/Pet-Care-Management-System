@@ -6,11 +6,10 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
 const links = [
-  ["Home", "#home"],
-  ["About", "#about"],
-  ["Services", "#services"],
-  ["Adoption", "#adoption"],
-  ["Contact", "#contact"],
+  ["Services", "/#services"],
+  ["Records", "/dashboard"],
+  ["Adoption", "/#adoption"],
+  ["Contact", "/contact"],
 ];
 
 export function Navbar() {
@@ -33,7 +32,6 @@ export function Navbar() {
             {links.map(([label, href]) => <a key={label} href={href} onClick={() => setOpen(false)}>{label}</a>)}
           </div>
           <div className="nav-actions">
-            <Link className="text-link" href="/dashboard" onClick={() => setOpen(false)}>Log in</Link>
             <Link className="button button--small" href="/dashboard" onClick={() => setOpen(false)}>Get started</Link>
           </div>
         </nav>
