@@ -1,0 +1,8 @@
+.photoButton { position: absolute; right: 14px; bottom: 14px; z-index: 2; padding: 8px 12px; border-radius: 999px; background: rgba(36,35,31,.88); color: white; font-size: .7rem; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+.photoButton:hover { background: #ef7d42; }
+.photoButton input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+.manageNotice { display: flex; flex-direction: column; padding: 9px 14px; border: 1px solid #f1c9b2; border-radius: 11px; background: #fff5ee; color: #8f421e; text-align: right; }
+.manageNotice strong { font-size: .76rem; }.manageNotice small { color: #8b7569; font-size: .66rem; }
+.manageLink { padding: 9px 14px; border: 1px solid #d8cfc4; border-radius: 999px; color: #d86129; font-size: .75rem; font-weight: 800; }
+.manageLink:hover { border-color: #ef7d42; background: #fff5ee; }
+@media(max-width:620px){.manageNotice,.manageLink{align-self:flex-start;text-align:left}}

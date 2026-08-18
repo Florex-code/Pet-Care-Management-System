@@ -32,7 +32,8 @@ export function Navbar() {
             {links.map(([label, href]) => <a key={label} href={href} onClick={() => setOpen(false)}>{label}</a>)}
           </div>
           <div className="nav-actions">
-            <Link className="button button--small" href="/dashboard" onClick={() => setOpen(false)}>Get started</Link>
+            <Link className="text-link" href="/login" onClick={() => setOpen(false)}>Sign in</Link>
+            <Link className="button button--small" href="/register" onClick={() => setOpen(false)}>Get started</Link>
           </div>
         </nav>
       </div>

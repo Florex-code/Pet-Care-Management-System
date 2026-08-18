@@ -1,0 +1,4 @@
+.publicSite { margin: 14px 10px 2px; color: #efad89; font-size: .78rem; font-weight: 700; }
+.publicSite:hover { color: #fff; }
+.mobileHome { display: none; color: #d86129; font-size: .75rem; font-weight: 750; }
+@media (max-width: 760px) { .publicSite { display: none; } .mobileHome { display: inline-flex; } }
