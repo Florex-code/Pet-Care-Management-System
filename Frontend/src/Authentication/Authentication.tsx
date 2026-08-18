@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { PawPrint } from "@phosphor-icons/react";
-import { demoUsers, SESSION_KEY } from "@/lib/store";
-import type { Role } from "@/lib/types";
+import { demoUsers, SESSION_KEY } from "@/Data/store";
+import type { Role } from "@/Data/types";
 import styles from "./Authentication.module.css";
 
 export function AuthForm({ mode }: { mode: "login" | "register" | "forgot" }) {

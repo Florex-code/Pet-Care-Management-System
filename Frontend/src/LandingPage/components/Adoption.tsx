@@ -2,7 +2,7 @@
 import { ArrowRight, Heart } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { loadStore, seed } from "@/lib/store";
+import { loadStore, seed } from "@/Data/store";
 
 export function Adoption() {
   const [pets, setPets] = useState(seed.adoptions);

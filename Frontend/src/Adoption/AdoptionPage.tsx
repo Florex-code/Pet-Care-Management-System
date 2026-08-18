@@ -6,8 +6,8 @@ import Link from "next/link";
 import { CheckCircle, Heart, MagnifyingGlass, PawPrint } from "@phosphor-icons/react";
 import { Footer } from "@/shared/components/Footer";
 import { Navbar } from "@/shared/components/Navbar";
-import { loadStore, saveStore, seed, SESSION_KEY } from "@/lib/store";
-import type { Adoption, Store, User } from "@/lib/types";
+import { loadStore, saveStore, seed, SESSION_KEY } from "@/Data/store";
+import type { Adoption, Store, User } from "@/Data/types";
 import styles from "./AdoptionPage.module.css";
 import adminStyles from "./AdoptionAdmin.module.css";
 

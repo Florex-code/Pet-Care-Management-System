@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "../features/landing-page/LandingPage.css";
-import "../features/contact-page/ContactPage.css";
+import "../LandingPage/LandingPage.css";
+import "../Contact/ContactPage.css";
 
 export const metadata: Metadata = {
   title: "PawCare — Better care for every pet",
