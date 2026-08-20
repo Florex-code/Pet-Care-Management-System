@@ -1,1 +1,109 @@
-.page{min-height:100vh;display:grid;place-items:center;padding:30px;background:radial-gradient(circle at 10% 10%,#ffe4d2,transparent 32%),#fbf8f2}.card{width:min(100%,470px);padding:42px;border:1px solid #e9e3d8;border-radius:26px;background:#fffdfa;box-shadow:0 24px 70px #382d1f18}.brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:30px;font:800 1.4rem var(--font-display)}.brand span{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#ef7d42;color:white}.brand strong{color:#ef7d42}.kicker{margin:0;color:#d86129;font-size:.75rem;font-weight:800;letter-spacing:.13em;text-align:center;text-transform:uppercase}.card h1{margin:8px 0 10px;font-size:2rem;text-align:center}.intro{margin-bottom:24px;color:#6f6d65;text-align:center}.card form{display:grid;gap:15px}.card label{display:grid;gap:6px;color:#4f4d47;font-size:.82rem;font-weight:750}.card input,.card select{height:48px;padding:0 13px;border:1px solid #dcd5c9;border-radius:10px;background:white;font:inherit}.card button{height:50px;margin-top:4px;border:0;border-radius:99px;background:#ef7d42;color:white;font-weight:800;cursor:pointer}.links{display:flex;justify-content:center;gap:22px;margin-top:22px;color:#d86129;font-size:.84rem;font-weight:700}.success{padding:12px;border-radius:9px;background:#e8f5ea;color:#386444;font-size:.85rem}@media(max-width:520px){.card{padding:30px 20px}.page{padding:16px}}
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  background:
+    radial-gradient(circle at 10% 10%, #ffe4d2, transparent 32%), #fbf8f2;
+}
+.card {
+  width: min(100%, 470px);
+  padding: 42px;
+  border: 1px solid #e9e3d8;
+  border-radius: 26px;
+  background: #fffdfa;
+  box-shadow: 0 24px 70px #382d1f18;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  font: 800 1.4rem var(--font-display);
+}
+.brand span {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #ef7d42;
+  color: white;
+}
+.brand strong {
+  color: #ef7d42;
+}
+.kicker {
+  margin: 0;
+  color: #d86129;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.card h1 {
+  margin: 8px 0 10px;
+  font-size: 2rem;
+  text-align: center;
+}
+.intro {
+  margin-bottom: 24px;
+  color: #6f6d65;
+  text-align: center;
+}
+.card form {
+  display: grid;
+  gap: 15px;
+}
+.card label {
+  display: grid;
+  gap: 6px;
+  color: #4f4d47;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+.card input,
+.card select {
+  height: 48px;
+  padding: 0 13px;
+  border: 1px solid #dcd5c9;
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+}
+.card button {
+  height: 50px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 99px;
+  background: #ef7d42;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 22px;
+  color: #d86129;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+.success {
+  padding: 12px;
+  border-radius: 9px;
+  background: #e8f5ea;
+  color: #386444;
+  font-size: 0.85rem;
+}
+@media (max-width: 520px) {
+  .card {
+    padding: 30px 20px;
+  }
+  .page {
+    padding: 16px;
+  }
+}

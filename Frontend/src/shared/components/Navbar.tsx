@@ -1,7 +1,8 @@
 "use client";
 
-import { List, X } from "@phosphor-icons/react";
+import { Heart, House, List, PawPrint, UserCircle, X } from "@phosphor-icons/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
@@ -14,6 +15,7 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
@@ -37,6 +39,12 @@ export function Navbar() {
           </div>
         </nav>
       </div>
+      <nav className="mobile-dock" aria-label="Mobile navigation">
+        <Link className={pathname === "/" ? "is-active" : ""} href="/"><House weight={pathname === "/" ? "fill" : "regular"} /><span>Home</span></Link>
+        <Link className={pathname.startsWith("/services") ? "is-active" : ""} href="/#services"><PawPrint weight={pathname.startsWith("/services") ? "fill" : "regular"} /><span>Care</span></Link>
+        <Link className={pathname === "/adoption" ? "is-active" : ""} href="/adoption"><Heart weight={pathname === "/adoption" ? "fill" : "regular"} /><span>Adopt</span></Link>
+        <Link className={pathname === "/dashboard" ? "is-active" : ""} href="/dashboard"><UserCircle weight={pathname === "/dashboard" ? "fill" : "regular"} /><span>My pets</span></Link>
+      </nav>
     </header>
   );
 }

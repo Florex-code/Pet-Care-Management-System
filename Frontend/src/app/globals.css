@@ -1,2 +1,5 @@
 /* Global feature styles are imported directly by the root layout.
    Keep this file for future application-wide overrides only. */
+html { overflow-x: hidden; }
+img { max-width: 100%; }
+input, select, textarea { font-size: 16px; }

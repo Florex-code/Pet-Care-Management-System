@@ -1,0 +1,125 @@
+/* Cross-page mobile refinements loaded after the feature styles. */
+.mobile-dock { display: none; }
+
+@media (max-width: 800px) {
+  body:has(.mobile-dock) { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .site-header { height: 80px; padding-top: 10px; }
+  .nav-wrap { width: calc(100% - 24px); height: 58px; padding: 0 10px 0 13px; border-radius: 18px; box-shadow: 0 8px 28px rgba(56,45,31,.1); }
+  .nav-wrap .logo { font-size: 1.2rem; }
+  .nav-wrap .logo__mark { width: 35px; height: 35px; border-radius: 11px; }
+  .main-nav { visibility: hidden; transform: translateY(-8px); transition: max-height .3s ease, opacity .2s ease, transform .2s ease, visibility 0s linear .3s; }
+  .main-nav.is-open { max-height: calc(100dvh - 104px); visibility: visible; transform: translateY(0); transition-delay: 0s; }
+  .mobile-dock { position: fixed; z-index: 80; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); left: 10px; height: 64px; display: grid; grid-template-columns: repeat(4,1fr); align-items: center; padding: 5px; border: 1px solid rgba(255,255,255,.7); border-radius: 22px; background: rgba(255,253,250,.94); box-shadow: 0 14px 40px rgba(31,28,24,.22); backdrop-filter: blur(18px); pointer-events: auto; }
+  .mobile-dock a { min-width: 0; height: 52px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1px; border-radius: 17px; color: #79756d; font-size: .64rem; font-weight: 750; line-height: 1; }
+  .mobile-dock a svg { width: 23px; height: 23px; }
+  .mobile-dock a.is-active { background: var(--orange-soft); color: var(--orange-dark); }
+  .mobile-dock a.is-active svg { transform: translateY(-1px); }
+}
+@media (max-width: 620px) {
+  .section { padding: 58px 0; }
+  .eyebrow { margin-bottom: 14px; font-size: .69rem; }
+  h2 { font-size: 2.05rem; }
+  .hero { padding: 24px 0 68px; }
+  .hero__grid { gap: 34px; }
+  .hero__content { text-align: left; }
+  .hero h1 { margin-bottom: 17px; font-size: clamp(2.55rem,12vw,3.4rem); line-height: 1.02; }
+  .hero__copy { margin-bottom: 24px; font-size: .98rem; line-height: 1.6; }
+  .hero__actions, .hero__trust { justify-content: flex-start; }
+  .hero__actions .button { width: 100%; }
+  .hero__actions .button--outline { background: rgba(255,255,255,.65); }
+  .hero__trust { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+  .hero__trust span { min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.58); }
+  .hero__visual { width: calc(100% - 8px); }
+  .hero__image-wrap { aspect-ratio: 1.12/1; border-radius: 34px; }
+  .floating-card { border-radius: 14px; box-shadow: 0 10px 25px rgba(49,40,29,.14); }
+  .floating-card--top { top: 12px; right: -8px; }
+  .floating-card--bottom { bottom: -20px; left: -7px; }
+  .section-heading--center { margin-bottom: 32px; text-align: left; }
+  .services .container, .adoption .container { width: 100%; }
+  .services .section-heading, .adoption .section-heading-row { width: calc(100% - 28px); margin-inline: auto; }
+  .service-grid, .pet-grid { display: flex; gap: 14px; padding: 2px 14px 18px; overflow-x: auto; scroll-padding-left: 14px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .service-grid::-webkit-scrollbar, .pet-grid::-webkit-scrollbar { display: none; }
+  .service-card { min-width: min(82vw,310px); padding: 23px; scroll-snap-align: start; box-shadow: 0 8px 24px rgba(49,40,29,.05); }
+  .service-card__icon { margin-bottom: 18px; }
+  .pet-card { min-width: min(84vw,330px); scroll-snap-align: center; }
+  .pet-card__visual { height: 230px; }
+  .section-heading-row { gap: 18px; margin-bottom: 28px; }
+  .section-heading-row > .button { width: 100%; }
+  .about__grid { gap: 38px; }
+  .about__content { padding: 0; }
+  .about__image { aspect-ratio: 1/.92; border-radius: 26px 76px 26px 26px; }
+  .about__badge { right: -3px; bottom: -18px; }
+  .check-list { margin: 22px 0 27px; }
+  .check-list li { align-items: flex-start; }
+  .about__content > .button { width: 100%; }
+  .how .section-heading { text-align: center; }
+  .steps { gap: 16px; }
+  .step { display: grid; grid-template-columns: 58px 1fr; gap: 4px 15px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.045); text-align: left; }
+  .step__icon { grid-row: 1/3; width: 54px; height: 54px; margin: 0; border-radius: 17px; }
+  .step__icon svg { width: 28px; height: 28px; }
+  .step__number { display: none; }
+  .step h3 { align-self: end; margin: 0; }
+  .step p { margin: 0; }
+  .footer { padding-top: 58px; }
+  .footer__grid { padding-bottom: 40px; }
+  .footer__grid a, .footer__grid span, .contact-details a, .contact-details p { overflow-wrap: anywhere; }
+  .contact-intro { padding: 40px 0 48px; }
+  .contact-intro p { font-size: 1rem; }
+  .contact-details > div { grid-template-columns: 42px minmax(0, 1fr); gap: 13px; }
+  .contact-details > div > span { width: 42px; height: 42px; }
+  [class*="AdoptionPage_intro"] { padding: 34px 0 42px; text-align: left; }
+  [class*="AdoptionPage_intro"] h1 { font-size: 2.65rem; }
+  [class*="AdoptionPage_filters"] { margin-bottom: 34px; }
+  [class*="AdoptionPage_filters"] > div { max-width: 100%; padding-bottom: 3px; overflow-x: auto; scrollbar-width: none; }
+  [class*="AdoptionPage_filters"] > div::-webkit-scrollbar { display: none; }
+  [class*="AdoptionPage_filters"] button { min-height: 44px; flex: none; }
+  [class*="AdoptionPage_resultHead"] { align-items: flex-start; flex-direction: column; gap: 4px; }
+  [class*="AdoptionPage_catalogue"] { padding: 30px 0 70px; }
+  [class*="AdoptionPage_grid"] { gap: 16px; }
+  [class*="AdoptionPage_card"] { border-radius: 18px; }
+  [class*="AdoptionPage_visual"] { height: 205px; }
+  [class*="AdoptionPage_modal"] { max-height: calc(100dvh - 24px); padding: 30px 18px; overflow-y: auto; }
+  [class*="ServiceDetails_hero"] { padding: 38px 0 65px; }
+  [class*="ServiceDetails_back"] { margin-bottom: 28px; }
+  [class*="ServiceDetails_hero"] h1 { font-size: 2.75rem; }
+  [class*="ServiceDetails_hero"] p { font-size: 1rem; }
+  [class*="ServiceDetails_heroIcon"] { width: 180px; }
+  [class*="ServiceDetails_content"], [class*="ServiceDetails_process"] { padding: 65px 0; }
+  [class*="ServiceDetails_content"] aside { padding: 25px; }
+  [class*="ServiceDetails_heading"] h2 { font-size: 2.25rem; }
+  [class*="ServiceDetails_finalCta"] h2 { font-size: 1.7rem; }
+  [class*="Authentication_page"] { min-height: 100dvh; padding: 12px; }
+  [class*="Authentication_card"] { padding: 28px 18px; border-radius: 20px; }
+}
+
+@media (max-width: 760px) {
+  [class*="Dashboard_app"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+  [class*="Dashboard_sidebar"] { height: calc(70px + env(safe-area-inset-bottom)); padding: 7px 7px calc(7px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 24px #1715111f; }
+  [class*="Dashboard_sidebar"] nav { justify-content: flex-start; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  [class*="Dashboard_sidebar"] nav::-webkit-scrollbar { display: none; }
+  [class*="Dashboard_sidebar"] nav button { min-width: 74px; flex: 1 0 74px; padding: 7px 5px; }
+  [class*="Dashboard_sidebar"] nav button:nth-child(n+6) { display: flex; }
+  [class*="Dashboard_sidebar"] nav button svg { width: 21px; height: 21px; }
+  [class*="Dashboard_main"] { padding: 18px 14px 24px; }
+  [class*="Dashboard_main"] > header { gap: 10px; }
+  [class*="Dashboard_main"] > header h1 { font-size: 1.5rem; line-height: 1.2; }
+  [class*="Dashboard_avatar"] { width: 40px; height: 40px; flex: none; }
+  [class*="Dashboard_table"] { margin-inline: -17px; padding-inline: 17px; }
+  [class*="Dashboard_table"] table { min-width: 650px; }
+  [class*="Dashboard_modal"] { max-height: calc(100dvh - 24px); padding: 20px; }
+  [class*="Dashboard_records"] dl { grid-template-columns: 92px minmax(0, 1fr); }
+  [class*="Dashboard_records"] dd { overflow-wrap: anywhere; }
+}
+@media (max-width: 380px) {
+  .container { width: calc(100% - 24px); }
+  .logo { font-size: 1.2rem; }
+  .logo__mark { width: 35px; height: 35px; }
+  .main-nav { inset-inline: 12px; }
+  .hero h1 { font-size: 2.5rem; }
+  .hero__grid { gap: 44px; }
+  .floating-card { scale: .88; }
+  .floating-card--top { right: -18px; transform-origin: right top; }
+  .floating-card--bottom { left: -18px; transform-origin: left bottom; }
+  .footer__grid { grid-template-columns: 1fr; }
+  .footer__brand, .footer__grid > div:last-child { grid-column: auto; }
+}
