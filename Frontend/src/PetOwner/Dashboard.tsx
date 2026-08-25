@@ -25,10 +25,25 @@ import {
   CaretDoubleRight,
   Check,
 } from "@phosphor-icons/react";
-import { loadStore, saveStore, seed, SESSION_KEY } from "@/Data/store";
+import { seed, SESSION_KEY } from "@/Data/store";
+import { ApiError, AUTH_TOKEN_KEY } from "@/shared/api/client";
+import {
+  createAppointment,
+  createAdoption,
+  cancelAppointment,
+  createMedicalRecord,
+  createPet,
+  getDashboard,
+  markNotificationRead,
+  requestAdoption,
+  rescheduleAppointment,
+  reviewAdoption,
+  updateAppointmentStatus,
+  updateAdoption,
+  updatePet,
+} from "@/shared/api/dashboard";
 import type {
   Appointment,
-  MedicalRecord,
   Pet,
   Role,
   Store,
@@ -80,7 +95,10 @@ export function Dashboard() {
     [view, setView] = useState<View>("overview"),
     [modal, setModal] = useState<Modal>(null),
     [ready, setReady] = useState(false),
+    [loadError, setLoadError] = useState(""),
     [editing, setEditing] = useState<Pet | null>(null),
+    [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null),
+    [feedback, setFeedback] = useState<{ text: string; error?: boolean } | null>(null),
     [profileOpen, setProfileOpen] = useState(false);
   useEffect(() => {
     const raw = localStorage.getItem(SESSION_KEY);
@@ -89,12 +107,19 @@ export function Dashboard() {
       return;
     }
     setUser(JSON.parse(raw));
-    setStore(loadStore());
-    setReady(true);
+    getDashboard()
+      .then(setStore)
+      .catch((caught) => {
+        if (caught instanceof ApiError && caught.status === 401) {
+          localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          router.replace("/login");
+          return;
+        }
+        setLoadError("Couldn’t load your dashboard. Check that the backend is running and refresh.");
+      })
+      .finally(() => setReady(true));
   }, [router]);
-  useEffect(() => {
-    if (ready) saveStore(store);
-  }, [store, ready]);
   const pets = useMemo(
     () =>
       user?.role === "owner"
@@ -127,13 +152,25 @@ export function Dashboard() {
     .sort((a, b) =>
       `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`),
     )[0];
-  function status(id: string, value: Appointment["status"]) {
-    setStore((s) => ({
-      ...s,
-      appointments: s.appointments.map((a) =>
-        a.id === id ? { ...a, status: value } : a,
-      ),
-    }));
+  const upcomingAppts = appts.filter((a) => ["Pending", "Accepted"].includes(a.status));
+  const pastAppts = appts.filter((a) => !["Pending", "Accepted"].includes(a.status));
+  function showFeedback(text: string, error = false) {
+    setFeedback({ text, error });
+    window.setTimeout(() => setFeedback(null), 4500);
+  }
+  async function status(id: string, value: Appointment["status"]) {
+    if (value === "Cancelled" && !window.confirm("Cancel this appointment? This cannot be undone.")) return;
+    try {
+      const persisted = user?.role === "owner" && value === "Cancelled"
+        ? await cancelAppointment(id)
+        : user?.role === "vet"
+          ? await updateAppointmentStatus(id, value)
+          : null;
+      setStore((s) => ({ ...s, appointments: s.appointments.map((a) => a.id === id ? persisted || { ...a, status: value } : a) }));
+      showFeedback(value === "Cancelled" ? "Appointment cancelled." : `Appointment marked ${value.toLowerCase()}.`);
+    } catch (caught) {
+      showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t update the appointment.", true);
+    }
   }
   async function savePet(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -144,9 +181,7 @@ export function Dashboard() {
         file instanceof File && file.size
           ? await fileToDataUrl(file)
           : editing?.photo,
-      p: Pet = {
-        id: editing?.id || crypto.randomUUID(),
-        ownerId: editing?.ownerId || user.id,
+      input = {
         name: String(d.get("name")),
         species: String(d.get("species")),
         breed: String(d.get("breed")),
@@ -157,6 +192,7 @@ export function Dashboard() {
         healthStatus: String(d.get("health")),
         allergies: String(d.get("allergies")),
       };
+    const p = editing ? await updatePet(editing.id, input) : await createPet(input);
     setStore((s) => ({
       ...s,
       pets: editing
@@ -165,6 +201,7 @@ export function Dashboard() {
     }));
     setEditing(null);
     setModal(null);
+    setStore(await getDashboard());
   }
   async function saveAdoption(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -174,60 +211,44 @@ export function Dashboard() {
         file instanceof File && file.size
           ? await fileToDataUrl(file)
           : undefined;
-    setStore((s) => ({
-      ...s,
-      adoptions: [
-        ...s.adoptions,
-        {
-          id: crypto.randomUUID(),
-          name: String(d.get("name")),
-          species: String(d.get("species")),
-          breed: String(d.get("breed")),
-          age: String(d.get("age")),
-          photo,
-          status: "Available",
-        },
-      ],
-    }));
+    const adoption = await createAdoption({
+      name: String(d.get("name")),
+      species: String(d.get("species")),
+      breed: String(d.get("breed")),
+      age: String(d.get("age")),
+      photo,
+    });
+    setStore((s) => ({ ...s, adoptions: [...s.adoptions, adoption] }));
     setModal(null);
   }
-  function book(e: FormEvent<HTMLFormElement>) {
+  async function book(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
     const d = new FormData(e.currentTarget),
-      a: Appointment = {
-        id: crypto.randomUUID(),
+      input = {
         petId: String(d.get("pet")),
-        ownerId: user.id,
         vetId: String(d.get("vet")),
         date: String(d.get("date")),
         time: String(d.get("time")),
         reason: String(d.get("reason")),
-        status: "Pending",
       };
-    setStore((s) => ({
-      ...s,
-      appointments: [...s.appointments, a],
-      notices: [
-        ...s.notices,
-        {
-          id: crypto.randomUUID(),
-          userId: a.vetId,
-          text: `New appointment request for ${petName(a.petId)}.`,
-          read: false,
-        },
-      ],
-    }));
-    setModal(null);
+    try {
+      if (editingAppointment) await rescheduleAppointment(editingAppointment.id, input);
+      else await createAppointment(input);
+      setStore(await getDashboard());
+      setModal(null);
+      setEditingAppointment(null);
+      showFeedback(editingAppointment ? "Appointment rescheduled and sent for review." : "Appointment request submitted.");
+    } catch (caught) {
+      showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t save the appointment.", true);
+    }
   }
-  function record(e: FormEvent<HTMLFormElement>) {
+  async function record(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
     const d = new FormData(e.currentTarget),
-      r: MedicalRecord = {
-        id: crypto.randomUUID(),
+      input = {
         petId: String(d.get("pet")),
-        vetId: user.id,
         date: String(d.get("date")),
         diagnosis: String(d.get("diagnosis")),
         treatment: String(d.get("treatment")),
@@ -235,11 +256,13 @@ export function Dashboard() {
         vaccination: String(d.get("vaccination")),
         notes: String(d.get("notes")),
       };
-    setStore((s) => ({ ...s, records: [r, ...s.records] }));
+    await createMedicalRecord(input);
+    setStore(await getDashboard());
     setModal(null);
   }
   if (!ready || !user)
     return <div className={styles.loading}>Loading PawCare…</div>;
+  if (loadError) return <div className={styles.loading}>{loadError}</div>;
   const stats =
     user.role === "admin"
       ? [
@@ -300,6 +323,7 @@ export function Dashboard() {
           className={styles.logout}
           onClick={() => {
             localStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(AUTH_TOKEN_KEY);
             router.push("/login");
           }}
         >
@@ -357,9 +381,13 @@ export function Dashboard() {
               <Link href="/">
                 <House /> Public website
               </Link>
+              <Link href="/account">
+                <Users /> Account settings
+              </Link>
               <button
                 onClick={() => {
                   localStorage.removeItem(SESSION_KEY);
+                  localStorage.removeItem(AUTH_TOKEN_KEY);
                   router.push("/login");
                 }}
               >
@@ -598,13 +626,17 @@ export function Dashboard() {
               ) : undefined
             }
           >
+            {upcomingAppts.length > 0 && <h3>Upcoming appointments</h3>}
             <Appointments
-              items={appts}
+              items={upcomingAppts}
               petName={petName}
               vetName={vetName}
               role={user.role}
               update={status}
+              reschedule={(appointment) => { setEditingAppointment(appointment); setModal("appointment"); }}
+              emptyText={pastAppts.length ? undefined : "Scheduled visits and their status will appear here."}
             />
+            {pastAppts.length > 0 && <><h3>Appointment history</h3><Appointments items={pastAppts} petName={petName} vetName={vetName} role={user.role} update={status} /></>}
           </Section>
         )}
         {view === "medical" && (
@@ -681,36 +713,28 @@ export function Dashboard() {
                     {a.breed} · {a.age}
                   </p>
                   <b>{a.status}</b>
+                  {user.role === "admin" && a.status === "Pending" && (
+                    <div>
+                      <strong>Applicant: {a.applicantName || "Owner"}</strong>
+                      {a.requestMessage && <p>{a.requestMessage}</p>}
+                    </div>
+                  )}
                   {user.role === "admin" && (
                     <AdoptionPhotoInput
                       hasPhoto={Boolean(a.photo)}
                       onSelect={async (file) => {
                         const photo = await fileToDataUrl(file);
-                        setStore((s) => ({
-                          ...s,
-                          adoptions: s.adoptions.map((x) =>
-                            x.id === a.id ? { ...x, photo } : x,
-                          ),
-                        }));
+                        const updated = await updateAdoption(a.id, { ...a, photo });
+                        setStore((s) => ({ ...s, adoptions: s.adoptions.map((x) => x.id === a.id ? updated : x) }));
                       }}
                     />
                   )}
                   {user.role === "owner" && a.status === "Available" && (
                     <button
-                      onClick={() =>
-                        setStore((s) => ({
-                          ...s,
-                          adoptions: s.adoptions.map((x) =>
-                            x.id === a.id
-                              ? {
-                                  ...x,
-                                  status: "Pending",
-                                  applicantId: user.id,
-                                }
-                              : x,
-                          ),
-                        }))
-                      }
+                      onClick={async () => {
+                        await requestAdoption(a.id, `I would like to apply to adopt ${a.name}. Please contact me to discuss the next steps.`);
+                        setStore(await getDashboard());
+                      }}
                     >
                       Request adoption
                     </button>
@@ -718,32 +742,18 @@ export function Dashboard() {
                   {user.role === "admin" && a.status === "Pending" && (
                     <div>
                       <button
-                        onClick={() =>
-                          setStore((s) => ({
-                            ...s,
-                            adoptions: s.adoptions.map((x) =>
-                              x.id === a.id ? { ...x, status: "Adopted" } : x,
-                            ),
-                          }))
-                        }
+                        onClick={async () => {
+                          await reviewAdoption(a.id, "Adopted");
+                          setStore(await getDashboard());
+                        }}
                       >
                         Approve
                       </button>
                       <button
-                        onClick={() =>
-                          setStore((s) => ({
-                            ...s,
-                            adoptions: s.adoptions.map((x) =>
-                              x.id === a.id
-                                ? {
-                                    ...x,
-                                    status: "Available",
-                                    applicantId: undefined,
-                                  }
-                                : x,
-                            ),
-                          }))
-                        }
+                        onClick={async () => {
+                          await reviewAdoption(a.id, "Available");
+                          setStore(await getDashboard());
+                        }}
                       >
                         Reject
                       </button>
@@ -834,14 +844,15 @@ export function Dashboard() {
                     <Bell />
                     <p>{n.text}</p>
                     <button
-                      onClick={() =>
+                      onClick={async () => {
+                        if (!n.read) await markNotificationRead(n.id);
                         setStore((s) => ({
                           ...s,
                           notices: s.notices.map((x) =>
                             x.id === n.id ? { ...x, read: true } : x,
                           ),
-                        }))
-                      }
+                        }));
+                      }}
                     >
                       {n.read ? "Read" : "Mark read"}
                     </button>
@@ -857,9 +868,11 @@ export function Dashboard() {
           pets={pets}
           vets={store.users.filter((u) => u.role === "vet")}
           editing={editing}
+          editingAppointment={editingAppointment}
           close={() => {
             setModal(null);
             setEditing(null);
+            setEditingAppointment(null);
           }}
           changeKind={setModal}
           pet={savePet}
@@ -868,6 +881,7 @@ export function Dashboard() {
           adoption={saveAdoption}
         />
       )}
+      {feedback && <div className={`${styles.feedback} ${feedback.error ? styles.feedbackError : ""}`} role="status">{feedback.text}<button onClick={() => setFeedback(null)} aria-label="Dismiss message"><X /></button></div>}
     </div>
   );
 }
@@ -934,18 +948,23 @@ function Appointments({
   vetName,
   role,
   update,
+  reschedule,
+  emptyText,
 }: {
   items: Appointment[];
   petName: (x: string) => string;
   vetName: (x: string) => string;
   role: Role;
   update: (id: string, s: Appointment["status"]) => void;
+  reschedule?: (appointment: Appointment) => void;
+  emptyText?: string;
 }) {
+  if (items.length === 0 && !emptyText) return null;
   if (items.length === 0)
     return (
       <EmptyState
         title="No appointments yet"
-        text="Scheduled visits and their status will appear here."
+        text={emptyText || "Scheduled visits and their status will appear here."}
       />
     );
   return (
@@ -992,16 +1011,18 @@ function Appointments({
                         Reject
                       </button>
                     </>
+                  ) : role === "vet" && a.status === "Accepted" ? (
+                    <button
+                      className={styles.link}
+                      onClick={() => update(a.id, "Completed")}
+                    >
+                      Complete
+                    </button>
                   ) : role === "owner" &&
                     !["Cancelled", "Rejected", "Completed"].includes(
                       a.status,
                     ) ? (
-                    <button
-                      className={styles.link}
-                      onClick={() => update(a.id, "Cancelled")}
-                    >
-                      Cancel
-                    </button>
+                    <><button className={styles.link} onClick={() => reschedule?.(a)}>Reschedule</button>{" "}<button className={styles.link} onClick={() => update(a.id, "Cancelled")}>Cancel</button></>
                   ) : (
                     "—"
                   )}
@@ -1056,14 +1077,16 @@ function Appointments({
                       Reject
                     </button>
                   </>
-                ) : role === "owner" &&
-                  !["Cancelled", "Rejected", "Completed"].includes(a.status) ? (
+                ) : role === "vet" && a.status === "Accepted" ? (
                   <button
                     className={styles.link}
-                    onClick={() => update(a.id, "Cancelled")}
+                    onClick={() => update(a.id, "Completed")}
                   >
-                    Cancel appointment
+                    Mark completed
                   </button>
+                ) : role === "owner" &&
+                  !["Cancelled", "Rejected", "Completed"].includes(a.status) ? (
+                  <><button className={styles.link} onClick={() => reschedule?.(a)}>Reschedule</button><button className={styles.link} onClick={() => update(a.id, "Cancelled")}>Cancel appointment</button></>
                 ) : (
                   <span>No action needed</span>
                 )}
@@ -1090,7 +1113,7 @@ function Input({
 }) {
   if (type === "date")
     return <DateField label={label} name={name} defaultValue={value} />;
-  if (type === "time") return <TimeField label={label} name={name} />;
+  if (type === "time") return <TimeField label={label} name={name} defaultValue={value} />;
   return (
     <label>
       {label}
@@ -1253,7 +1276,7 @@ function DateField({
     </label>
   );
 }
-function TimeField({ label, name }: { label: string; name: string }) {
+function TimeField({ label, name, defaultValue = "09:00" }: { label: string; name: string; defaultValue?: string }) {
   const options = Array.from({ length: 20 }, (_, index) => {
     const totalMinutes = 8 * 60 + index * 30;
     const hours = Math.floor(totalMinutes / 60);
@@ -1266,7 +1289,7 @@ function TimeField({ label, name }: { label: string; name: string }) {
       label={label}
       name={name}
       options={options}
-      defaultValue="09:00"
+      defaultValue={defaultValue}
     />
   );
 }
@@ -1351,6 +1374,7 @@ function FormModal({
   pets,
   vets,
   editing,
+  editingAppointment,
   close,
   pet,
   appointment,
@@ -1362,6 +1386,7 @@ function FormModal({
   pets: Pet[];
   vets: User[];
   editing: Pet | null;
+  editingAppointment: Appointment | null;
   close: () => void;
   pet: (e: FormEvent<HTMLFormElement>) => void;
   appointment: (e: FormEvent<HTMLFormElement>) => void;
@@ -1392,7 +1417,7 @@ function FormModal({
                 ? "Edit pet"
                 : "Add pet"
               : kind === "appointment"
-                ? "Book appointment"
+                ? editingAppointment ? "Reschedule appointment" : "Book appointment"
                 : kind === "adoption"
                   ? "List a pet for adoption"
                   : "Add medical record"}
@@ -1487,7 +1512,7 @@ function FormModal({
                   value: pet.id,
                   label: pet.name,
                 }))}
-                defaultValue={pets[0]?.id}
+                defaultValue={editingAppointment?.petId || pets[0]?.id}
               />
               <SelectField
                 label="Veterinarian"
@@ -1496,14 +1521,15 @@ function FormModal({
                   value: vet.id,
                   label: vet.name,
                 }))}
-                defaultValue={vets[0]?.id}
+                defaultValue={editingAppointment?.vetId || vets[0]?.id}
               />
               <div className={styles.grid}>
-                <Input label="Date" name="date" type="date" />
-                <Input label="Time" name="time" type="time" />
+                <Input label="Date" name="date" type="date" value={editingAppointment?.date} />
+                <Input label="Time" name="time" type="time" value={editingAppointment?.time} />
               </div>
-              <Input label="Reason" name="reason" />
-              <button>Request appointment</button>
+              <Input label="Reason" name="reason" value={editingAppointment?.reason} />
+              <small>Appointments are available Monday to Friday, 8:00 AM to 5:00 PM.</small>
+              <button>{editingAppointment ? "Save new schedule" : "Request appointment"}</button>
             </form>
           ))}
         {kind === "record" &&

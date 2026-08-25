@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: pawcare-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pawcare}
+    username: ${DB_USERNAME:pawcare}
+    password: ${DB_PASSWORD:pawcare}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  jwt:
+    secret: ${JWT_SECRET:change-this-development-secret-before-production-123456}
+    ttl: ${JWT_TTL:24h}

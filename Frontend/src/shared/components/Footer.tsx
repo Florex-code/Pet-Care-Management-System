@@ -1,6 +1,7 @@
 import { FacebookLogo, InstagramLogo, LinkedinLogo, MapPin, Phone, Envelope } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { BackendStatus } from "./BackendStatus";
 
 export function Footer() {
   return (
@@ -11,7 +12,7 @@ export function Footer() {
         <div><h3>Services</h3><Link href="/#services">Veterinary care</Link><Link href="/#services">Vaccinations</Link><Link href="/dashboard">Medical records</Link><Link href="/#adoption">Pet adoption</Link></div>
         <div><h3>Get in touch</h3><a href="mailto:hello@pawcare.com"><Envelope /> hello@pawcare.com</a><a href="tel:+2348007292273"><Phone /> +234 800 PAW CARE</a><Link href="/contact"><MapPin /> Lagos, Nigeria</Link></div>
       </div>
-      <div className="container footer__bottom"><p>© {new Date().getFullYear()} PawCare. All rights reserved.</p><div><a href="#privacy">Privacy</a><a href="#terms">Terms</a></div></div>
+      <div className="container footer__bottom"><p>© {new Date().getFullYear()} PawCare. All rights reserved.</p><BackendStatus /><div><a href="#privacy">Privacy</a><a href="#terms">Terms</a></div></div>
     </footer>
   );
 }

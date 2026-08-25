@@ -460,6 +460,25 @@
   background: transparent;
   color: #d86129;
 }
+
+.feedback {
+  position: fixed;
+  z-index: 1000;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: min(440px, calc(100vw - 32px));
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #244a36;
+  color: #fff;
+  box-shadow: 0 14px 40px rgba(20, 30, 24, .22);
+}
+
+.feedbackError { background: #a83228; }
+.feedback button { border: 0; background: transparent; color: inherit; padding: 2px; }
 .backdrop {
   position: fixed;
   z-index: 100;
@@ -984,17 +1003,23 @@
   }
 }
 @media (max-width: 760px) {
+  .feedback {
+    right: 16px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+  }
   .app {
     display: block;
-    padding-bottom: 78px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
   }
   .sidebar {
     position: fixed;
     z-index: 30;
     inset: auto 0 0;
-    height: 70px;
+    height: calc(78px + env(safe-area-inset-bottom));
     display: block;
-    padding: 7px;
+    padding: 6px 5px env(safe-area-inset-bottom);
+    border-top: 1px solid #ffffff1a;
+    box-shadow: 0 -10px 30px #171b1660;
   }
   .logo,
   .sidebar > small,
@@ -1002,21 +1027,56 @@
     display: none !important;
   }
   .sidebar nav {
-    display: flex;
-    justify-content: space-around;
+    height: 100%;
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    align-items: stretch;
+    gap: 1px;
   }
   .sidebar nav button {
-    width: auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 62px;
+    justify-content: center;
     flex-direction: column;
-    gap: 1px;
-    padding: 7px;
-    font-size: 0.58rem;
+    gap: 3px;
+    padding: 6px 2px;
+    border-radius: 10px;
+    font-size: 0.52rem;
+    line-height: 1.1;
+    text-align: center;
   }
-  .sidebar nav button:nth-child(n + 6) {
-    display: flex;
+  .sidebar nav button span {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sidebar nav button svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+  .sidebar .active {
+    box-shadow: inset 0 3px #ef7d42;
   }
   .main {
-    padding: 20px 14px;
+    padding: 18px 14px 24px;
+  }
+  .main > header {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .main > header h1 {
+    max-width: 220px;
+    font-size: clamp(1.35rem, 7vw, 1.75rem);
+    line-height: 1.15;
+  }
+  .avatar {
+    width: 42px;
+    height: 42px;
+    flex: none;
   }
   .profileMenu {
     position: fixed;
@@ -1026,10 +1086,17 @@
     box-shadow: 0 18px 55px #17151138;
   }
   .hero {
-    padding: 26px;
+    min-height: 0;
+    padding: 24px 20px;
+    border-radius: 20px;
   }
   .hero h2 {
-    font-size: 1.7rem;
+    margin: 9px 0;
+    font-size: clamp(1.45rem, 7vw, 1.8rem);
+    line-height: 1.12;
+  }
+  .hero p {
+    font-size: 0.82rem;
   }
   .hero > svg {
     display: none;
@@ -1039,15 +1106,73 @@
     grid-template-columns: 1fr;
   }
   .section {
-    padding: 17px;
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+  .section > header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  .section > header h2 {
+    font-size: 1.15rem;
+  }
+  .section > header > button {
+    min-height: 44px;
+  }
+  .stats {
+    margin: 14px 0;
+  }
+  .stats strong {
+    font-size: 1.65rem;
+  }
+  .records article {
+    padding: 15px;
+  }
+  .records h3 {
+    display: grid;
+    gap: 3px;
+  }
+  .records time {
+    float: none;
+  }
+  .records dl {
+    grid-template-columns: minmax(82px, 0.4fr) minmax(0, 1fr);
+    gap: 5px 9px;
+  }
+  .notices article {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 14px;
+  }
+  .notices article > svg {
+    flex: none;
+  }
+  .notices p {
+    min-width: calc(100% - 36px);
+    font-size: 0.82rem;
+  }
+  .notices button {
+    min-height: 40px;
+    margin-left: 30px;
+    padding: 0 8px;
+    font-weight: 750;
+  }
+  .report {
+    height: 240px;
+    min-width: 480px;
+  }
+  .section:has(.report) {
+    overflow-x: auto;
   }
   .grid {
     grid-template-columns: 1fr;
   }
   .navBadge {
     position: absolute;
-    top: 2px;
-    right: 8px;
+    top: 3px;
+    right: 5px;
     min-width: 16px;
     height: 16px;
     font-size: 0.55rem;
@@ -1079,6 +1204,7 @@
   }
   .careGrid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   .nextCare,
   .healthPulse {
@@ -1154,6 +1280,7 @@
     border-top: 1px solid #f0ebe4;
   }
   .appointmentActions .link {
+    min-height: 40px;
     padding: 4px 0;
   }
   .backdrop {
@@ -1200,6 +1327,20 @@
     min-height: 52px;
     border-radius: 13px;
   }
+  .adopt {
+    padding: 18px;
+  }
+  .adoptionPhoto {
+    width: calc(100% + 36px);
+    margin: -18px -18px 16px;
+  }
+  .app button,
+  .app a,
+  .app input,
+  .app select,
+  .app textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 @media (max-width: 470px) {
   .stats {
@@ -1208,5 +1349,15 @@
   }
   .stats article {
     padding: 15px;
+  }
+  .mobileHome {
+    display: none;
+  }
+  .profileMenu {
+    right: 10px;
+    left: 10px;
+  }
+  .calendar {
+    width: min(320px, calc(100vw - 40px));
   }
 }

@@ -11,8 +11,10 @@ import {
 } from "@phosphor-icons/react";
 import { Footer } from "@/shared/components/Footer";
 import { Navbar } from "@/shared/components/Navbar";
-import { loadStore, saveStore, seed, SESSION_KEY } from "@/Data/store";
-import type { Adoption, Store, User } from "@/Data/types";
+import { SESSION_KEY } from "@/Data/store";
+import type { Adoption, User } from "@/Data/types";
+import { ApiError } from "@/shared/api/client";
+import { getPublicAdoptions, requestAdoption as submitAdoption } from "@/shared/api/dashboard";
 import styles from "./AdoptionPage.module.css";
 import adminStyles from "./AdoptionAdmin.module.css";
 
@@ -36,7 +38,8 @@ const petDetails: Record<
 
 export function AdoptionPage() {
   const router = useRouter();
-  const [store, setStore] = useState<Store>(seed);
+  const [adoptions, setAdoptions] = useState<Adoption[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState("All");
   const [selected, setSelected] = useState<Adoption | null>(null);
@@ -44,13 +47,16 @@ export function AdoptionPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    setStore(loadStore());
     const raw = localStorage.getItem(SESSION_KEY);
     setCurrentUser(raw ? JSON.parse(raw) : null);
+    getPublicAdoptions()
+      .then(setAdoptions)
+      .catch(() => setNotice("Couldn’t load available pets. Please try again."))
+      .finally(() => setLoading(false));
   }, []);
   const pets = useMemo(
     () =>
-      store.adoptions.filter((pet) => {
+      adoptions.filter((pet) => {
         const matchesSpecies = species === "All" || pet.species === species;
         const term = query.trim().toLowerCase();
         return (
@@ -61,10 +67,10 @@ export function AdoptionPage() {
               .includes(term))
         );
       }),
-    [store.adoptions, query, species],
+    [adoptions, query, species],
   );
 
-  function requestAdoption(event: FormEvent<HTMLFormElement>) {
+  async function requestAdoption(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) {
@@ -79,31 +85,15 @@ export function AdoptionPage() {
       return;
     }
     if (!selected) return;
-    const next = {
-      ...store,
-      adoptions: store.adoptions.map((pet) =>
-        pet.id === selected.id
-          ? { ...pet, status: "Pending" as const, applicantId: user.id }
-          : pet,
-      ),
-    };
-    setStore(next);
-    saveStore(next);
-    setSelected(null);
-    setNotice("Your adoption request was submitted successfully.");
-  }
-
-  async function updatePhoto(petId: string, file: File) {
-    const photo = await fileToDataUrl(file);
-    const next = {
-      ...store,
-      adoptions: store.adoptions.map((pet) =>
-        pet.id === petId ? { ...pet, photo } : pet,
-      ),
-    };
-    setStore(next);
-    saveStore(next);
-    setNotice("Pet photo updated on the public website.");
+    const form = new FormData(event.currentTarget);
+    try {
+      await submitAdoption(selected.id, String(form.get("message")));
+      setAdoptions((items) => items.filter((pet) => pet.id !== selected.id));
+      setSelected(null);
+      setNotice("Your adoption request was submitted successfully.");
+    } catch (caught) {
+      setNotice(caught instanceof ApiError ? caught.message : "Couldn’t submit the request. Please try again.");
+    }
   }
 
   return (
@@ -158,8 +148,8 @@ export function AdoptionPage() {
               </div>
               {currentUser?.role === "admin" ? (
                 <div className={adminStyles.manageNotice}>
-                  <strong>Photo management is active</strong>
-                  <small>Use Add photo on each pet image below.</small>
+                  <strong>Administrator controls</strong>
+                  <small><Link href="/dashboard">Open the dashboard to manage listings and requests.</Link></small>
                 </div>
               ) : (
                 <Link className={adminStyles.manageLink} href="/login">
@@ -167,7 +157,9 @@ export function AdoptionPage() {
                 </Link>
               )}
             </div>
-            {pets.length ? (
+            {loading ? (
+              <div className={styles.empty}><PawPrint /><p>Loading available pets…</p></div>
+            ) : pets.length ? (
               <div className={styles.grid}>
                 {pets.map((pet, index) => {
                   const detail = petDetails[pet.id] || {
@@ -192,19 +184,6 @@ export function AdoptionPage() {
                       >
                         {!pet.photo && <PawPrint weight="duotone" />}
                         <span>{pet.status}</span>
-                        {currentUser?.role === "admin" && (
-                          <label className={adminStyles.photoButton}>
-                            {pet.photo ? "Change photo" : "Add photo"}
-                            <input
-                              type="file"
-                              accept="image/jpeg,image/png,image/webp"
-                              onChange={(event) => {
-                                const file = event.target.files?.[0];
-                                if (file) updatePhoto(pet.id, file);
-                              }}
-                            />
-                          </label>
-                        )}
                       </div>
                       <div className={styles.body}>
                         <div>
@@ -296,13 +275,4 @@ export function AdoptionPage() {
       <Footer />
     </>
   );
-}
-
-function fileToDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
 }

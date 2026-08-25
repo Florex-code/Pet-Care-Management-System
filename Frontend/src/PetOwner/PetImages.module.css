@@ -18,3 +18,4 @@
 .adoptionPhoto { width: calc(100% + 46px); height: 180px; margin: -23px -23px 18px; background-position: center; background-size: cover; }
 .photoInput { display: flex; width: 100%; align-items: center; justify-content: center; margin-top: 12px; padding: 9px; border: 1px dashed #ef7d42; border-radius: 9px; color: #d86129; font-size: .75rem; font-weight: 800; cursor: pointer; }
 .photoInput input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+@media(max-width:760px){.adoptionPhoto{width:calc(100% + 36px);height:190px;margin:-18px -18px 16px}}

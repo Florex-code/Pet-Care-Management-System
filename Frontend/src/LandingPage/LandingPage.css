@@ -147,6 +147,10 @@ h2 span, h1 span { color: var(--orange); }
 .socials svg { width: 18px; height: 18px; }
 .footer__bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 22px; border-top: 1px solid #373a35; color: #858983; font-size: .78rem; }
 .footer__bottom p { margin: 0; }.footer__bottom div { display: flex; gap: 24px; }
+.backend-status { display: inline-flex; align-items: center; gap: 7px; color: #aeb0ab; }
+.backend-status i { width: 7px; height: 7px; border-radius: 50%; background: #d8a24c; box-shadow: 0 0 0 3px rgba(216,162,76,.12); }
+.backend-status--connected i { background: #65b879; box-shadow: 0 0 0 3px rgba(101,184,121,.12); }
+.backend-status--unavailable i { background: #d56a61; box-shadow: 0 0 0 3px rgba(213,106,97,.12); }
 
 @media (max-width: 1020px) {
   .main-nav { gap: 25px; }.nav-links { gap: 18px; }.hero__grid { gap: 35px; }.service-grid { grid-template-columns: repeat(2, 1fr); }.service-card p { min-height: 0; }.about__grid { gap: 55px; }.footer__grid { grid-template-columns: 1.3fr .7fr .8fr; }.footer__grid > div:last-child { grid-column: 1 / -1; }
