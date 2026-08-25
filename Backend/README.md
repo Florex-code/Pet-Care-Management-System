@@ -12,6 +12,10 @@ docker compose up -d
 mvn spring-boot:run
 ```
 
+## Deploy to Render
+
+Create a Docker web service with `Backend` as its root directory. The container listens on Render's `PORT` value. Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, and `CORS_ALLOWED_ORIGINS`, then use `/api/v1/health` as the health check path.
+
 The API runs at `http://localhost:8080`. Check it with:
 
 ```powershell

@@ -1,0 +1,9 @@
+target
+.m2
+.git
+.gitignore
+*.log
+.env
+compose.yml
+README.md
+PROJECT_STRUCTURE.md
