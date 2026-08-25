@@ -140,9 +140,11 @@ h2 span, h1 span { color: var(--orange); }
 .footer__brand p { max-width: 280px; margin: 20px 0; color: #9b9e98; }
 .footer h3 { margin: 4px 0 20px; color: white; font-size: .92rem; letter-spacing: 0; }
 .footer__grid > div:not(:first-child) { display: flex; flex-direction: column; align-items: flex-start; gap: 11px; }
-.footer__grid a, .footer__grid span { display: flex; align-items: center; gap: 9px; color: #aeb0ab; font-size: .87rem; transition: color .2s; }
+.footer__grid > div:not(:first-child) > a, .footer__grid > div:not(:first-child) > span { display: flex; align-items: center; gap: 9px; color: #aeb0ab; font-size: .87rem; transition: color .2s; }
 .footer__grid a:hover { color: var(--orange); }
-.footer__grid span svg { width: 17px; color: var(--orange); }
+.footer__grid > div:not(:first-child) > span svg { width: 17px; color: var(--orange); }
+.footer .logo__mark { color: white; }
+.footer .logo__mark svg { width: 23px; height: 23px; color: currentColor; }
 .socials { display: flex; gap: 9px; }
 .socials a { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #42463f; border-radius: 50%; }
 .socials svg { width: 18px; height: 18px; }
