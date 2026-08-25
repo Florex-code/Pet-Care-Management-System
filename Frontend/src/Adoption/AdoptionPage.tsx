@@ -15,6 +15,7 @@ import { SESSION_KEY } from "@/Data/store";
 import type { Adoption, User } from "@/Data/types";
 import { ApiError } from "@/shared/api/client";
 import { getPublicAdoptions, requestAdoption as submitAdoption } from "@/shared/api/dashboard";
+import { loadFavoritePets, toggleFavoritePet } from "@/shared/favorites";
 import styles from "./AdoptionPage.module.css";
 import adminStyles from "./AdoptionAdmin.module.css";
 
@@ -45,10 +46,12 @@ export function AdoptionPage() {
   const [selected, setSelected] = useState<Adoption | null>(null);
   const [notice, setNotice] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     const raw = localStorage.getItem(SESSION_KEY);
     setCurrentUser(raw ? JSON.parse(raw) : null);
+    setFavorites(loadFavoritePets());
     getPublicAdoptions()
       .then(setAdoptions)
       .catch(() => setNotice("Couldn’t load available pets. Please try again."))
@@ -183,6 +186,15 @@ export function AdoptionPage() {
                         }
                       >
                         {!pet.photo && <PawPrint weight="duotone" />}
+                        <button
+                          type="button"
+                          className={styles.favorite}
+                          aria-label={`${favorites.includes(pet.id) ? "Remove" : "Save"} ${pet.name}`}
+                          aria-pressed={favorites.includes(pet.id)}
+                          onClick={() => setFavorites((current) => toggleFavoritePet(current, pet.id))}
+                        >
+                          <Heart weight={favorites.includes(pet.id) ? "fill" : "regular"} />
+                        </button>
                         <span>{pet.status}</span>
                       </div>
                       <div className={styles.body}>

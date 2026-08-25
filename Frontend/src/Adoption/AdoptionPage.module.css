@@ -115,6 +115,25 @@
   font-size: 0.7rem;
   font-weight: 800;
 }
+.favorite {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #fffffff0;
+  color: #a8a098;
+  cursor: pointer;
+  box-shadow: 0 5px 15px #382d1f1f;
+  transition: color .2s, background .2s, transform .2s;
+}
+.favorite:hover { color: var(--orange); transform: scale(1.07); }
+.favorite[aria-pressed="true"] { background: var(--orange); color: white; }
+.favorite svg { width: 21px; height: 21px; }
 .body {
   padding: 22px;
 }
