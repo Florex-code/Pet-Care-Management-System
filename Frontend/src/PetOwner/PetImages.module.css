@@ -13,7 +13,10 @@
 .allergies { margin: 12px 0 13px !important; padding-bottom: 12px; border-bottom: 1px solid #eee7de; color: #4e4a44 !important; font-size: .76rem !important; }
 .health { display: inline-flex !important; align-items: center; padding: 6px 11px; border-radius: 99px; background: #e3f3e7; color: #347044 !important; font-size: .68rem !important; }
 .health::before { content: ""; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #4d9a61; }
-.editPet { position: absolute !important; z-index: 2; top: 15px !important; right: 15px !important; padding: 8px 12px !important; border-radius: 99px !important; background: rgba(255,255,255,.94) !important; color: #d86129 !important; font-size: .7rem !important; font-weight: 800; box-shadow: 0 5px 15px rgba(30,20,15,.14); }
+.petActions { position: absolute; z-index: 2; top: 15px; right: 15px; display: flex; gap: 7px; }
+.editPet, .deletePet { position: static !important; padding: 8px 12px !important; border-radius: 99px !important; background: rgba(255,255,255,.94) !important; font-size: .7rem !important; font-weight: 800; box-shadow: 0 5px 15px rgba(30,20,15,.14); }
+.editPet { color: #d86129 !important; }
+.deletePet { color: #a52b24 !important; }
 @media(max-width:500px){.petPhoto,.petPlaceholder{height:200px}.details{grid-template-columns:1fr 1fr}.details span:last-child{grid-column:1/-1}}
 .adoptionPhoto { width: calc(100% + 46px); height: 180px; margin: -23px -23px 18px; background-position: center; background-size: cover; }
 .photoInput { display: flex; width: 100%; align-items: center; justify-content: center; margin-top: 12px; padding: 9px; border: 1px dashed #ef7d42; border-radius: 9px; color: #d86129; font-size: .75rem; font-weight: 800; cursor: pointer; }

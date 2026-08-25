@@ -33,6 +33,7 @@ import {
   cancelAppointment,
   createMedicalRecord,
   createPet,
+  deletePet,
   getDashboard,
   markNotificationRead,
   requestAdoption,
@@ -202,6 +203,21 @@ export function Dashboard() {
     setEditing(null);
     setModal(null);
     setStore(await getDashboard());
+  }
+  async function removePet(pet: Pet) {
+    if (!window.confirm(`Delete ${pet.name}? Their appointments and medical records will also be permanently deleted.`)) return;
+    try {
+      await deletePet(pet.id);
+      setStore((current) => ({
+        ...current,
+        pets: current.pets.filter((item) => item.id !== pet.id),
+        appointments: current.appointments.filter((item) => item.petId !== pet.id),
+        records: current.records.filter((item) => item.petId !== pet.id),
+      }));
+      showFeedback(`${pet.name} was deleted.`);
+    } catch (caught) {
+      showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t delete the pet.", true);
+    }
   }
   async function saveAdoption(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -598,16 +614,21 @@ export function Dashboard() {
                     </p>
                     <b className={imageStyles.health}>{p.healthStatus}</b>
                   </div>
-                  {user.role !== "vet" && (
-                    <button
-                      className={imageStyles.editPet}
-                      onClick={() => {
-                        setEditing(p);
-                        setModal("pet");
-                      }}
-                    >
-                      Edit pet
-                    </button>
+                  {user.role === "owner" && (
+                    <div className={imageStyles.petActions}>
+                      <button
+                        className={imageStyles.editPet}
+                        onClick={() => {
+                          setEditing(p);
+                          setModal("pet");
+                        }}
+                      >
+                        Edit pet
+                      </button>
+                      <button className={imageStyles.deletePet} onClick={() => removePet(p)}>
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </article>
               ))}

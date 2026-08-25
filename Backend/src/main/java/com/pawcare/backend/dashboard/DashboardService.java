@@ -83,6 +83,9 @@ public class DashboardService {
 
     @Transactional
     public PetItem createPet(UUID ownerId, PetRequest request) {
+        requireRole(ownerId, "OWNER");
+        jdbc.queryForObject("SELECT id FROM app_users WHERE id=? FOR UPDATE", UUID.class, ownerId);
+        rejectDuplicatePet(ownerId, null, request);
         UUID id = UUID.randomUUID();
         jdbc.update("""
                 INSERT INTO pets (id, owner_id, name, species, breed, gender, date_of_birth, weight, photo,
@@ -95,6 +98,8 @@ public class DashboardService {
 
     @Transactional
     public PetItem updatePet(UUID ownerId, UUID petId, PetRequest request) {
+        requireRole(ownerId, "OWNER");
+        rejectDuplicatePet(ownerId, petId, request);
         int updated = jdbc.update("""
                 UPDATE pets SET name=?, species=?, breed=?, gender=?, date_of_birth=?, weight=?, photo=?,
                     health_status=?, allergies=? WHERE id=? AND owner_id=?
@@ -103,6 +108,13 @@ public class DashboardService {
                 request.allergies().trim(), petId, ownerId);
         if (updated == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found");
         return petById(petId, ownerId);
+    }
+
+    @Transactional
+    public void deletePet(UUID ownerId, UUID petId) {
+        requireRole(ownerId, "OWNER");
+        int deleted = jdbc.update("DELETE FROM pets WHERE id=? AND owner_id=?", petId, ownerId);
+        if (deleted == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found");
     }
 
     @Transactional
@@ -289,6 +301,23 @@ public class DashboardService {
                 rs.getString("breed"), rs.getString("gender"), rs.getDate("date_of_birth").toString(),
                 rs.getString("weight"), rs.getString("photo"), rs.getString("health_status"),
                 rs.getString("allergies")), id, ownerId);
+    }
+
+    private void rejectDuplicatePet(UUID ownerId, UUID excludingPetId, PetRequest request) {
+        Integer matches = excludingPetId == null
+                ? jdbc.queryForObject("""
+                        SELECT COUNT(*) FROM pets WHERE owner_id=? AND LOWER(name)=LOWER(?)
+                        AND LOWER(species)=LOWER(?) AND LOWER(breed)=LOWER(?) AND date_of_birth=?
+                        """, Integer.class, ownerId, request.name().trim(), request.species().trim(),
+                        request.breed().trim(), Date.valueOf(request.dob()))
+                : jdbc.queryForObject("""
+                        SELECT COUNT(*) FROM pets WHERE owner_id=? AND id<>? AND LOWER(name)=LOWER(?)
+                        AND LOWER(species)=LOWER(?) AND LOWER(breed)=LOWER(?) AND date_of_birth=?
+                        """, Integer.class, ownerId, excludingPetId, request.name().trim(), request.species().trim(),
+                        request.breed().trim(), Date.valueOf(request.dob()));
+        if (matches != null && matches > 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This pet is already in your profile");
+        }
     }
 
     private AppointmentItem appointmentById(UUID id, UUID ownerId) {

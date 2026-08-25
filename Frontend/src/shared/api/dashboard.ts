@@ -15,6 +15,10 @@ export function updatePet(id: string, input: PetInput) {
   return apiRequest<Pet>(`/v1/pets/${id}`, { method: "PUT", body: JSON.stringify(input) });
 }
 
+export function deletePet(id: string) {
+  return apiRequest<void>(`/v1/pets/${id}`, { method: "DELETE" });
+}
+
 export function createAppointment(input: Pick<Appointment, "petId" | "vetId" | "date" | "time" | "reason">) {
   return apiRequest<Appointment>("/v1/appointments", { method: "POST", body: JSON.stringify(input) });
 }

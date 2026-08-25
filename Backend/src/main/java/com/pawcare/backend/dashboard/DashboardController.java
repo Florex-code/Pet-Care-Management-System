@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,12 @@ public class DashboardController {
     PetItem updatePet(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id,
             @Valid @RequestBody PetRequest request) {
         return dashboard.updatePet(userId(jwt), id, request);
+    }
+
+    @DeleteMapping("/pets/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deletePet(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        dashboard.deletePet(userId(jwt), id);
     }
 
     @PostMapping("/appointments")
