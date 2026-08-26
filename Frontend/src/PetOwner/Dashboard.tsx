@@ -733,9 +733,9 @@ export function Dashboard() {
                   <p>
                     {a.breed} · {a.age}
                   </p>
-                  <b>{a.status}</b>
+                  <b className={styles.adoptionStatus}>{a.status}</b>
                   {user.role === "admin" && a.status === "Pending" && (
-                    <div>
+                    <div className={styles.applicantDetails}>
                       <strong>Applicant: {a.applicantName || "Owner"}</strong>
                       {a.requestMessage && <p>{a.requestMessage}</p>}
                     </div>
@@ -761,7 +761,7 @@ export function Dashboard() {
                     </button>
                   )}
                   {user.role === "admin" && a.status === "Pending" && (
-                    <div>
+                    <div className={styles.adoptionActions}>
                       <button
                         onClick={async () => {
                           await reviewAdoption(a.id, "Adopted");
@@ -861,9 +861,12 @@ export function Dashboard() {
               {store.notices
                 .filter((n) => n.userId === user.id)
                 .map((n) => (
-                  <article key={n.id}>
-                    <Bell />
-                    <p>{n.text}</p>
+                  <article className={n.read ? styles.noticeRead : styles.noticeUnread} key={n.id}>
+                    <span className={styles.noticeIcon}><Bell weight={n.read ? "regular" : "fill"} /></span>
+                    <div className={styles.noticeContent}>
+                      <strong>{n.read ? "Care update" : "New update"}</strong>
+                      <p>{n.text}</p>
+                    </div>
                     <button
                       onClick={async () => {
                         if (!n.read) await markNotificationRead(n.id);
@@ -875,7 +878,7 @@ export function Dashboard() {
                         }));
                       }}
                     >
-                      {n.read ? "Read" : "Mark read"}
+                      {n.read ? "Read" : "Mark as read"}
                     </button>
                   </article>
                 ))}

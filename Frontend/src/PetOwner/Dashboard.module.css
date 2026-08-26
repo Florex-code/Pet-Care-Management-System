@@ -416,6 +416,23 @@
   display: flex;
   gap: 6px;
 }
+.adoptionStatus {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e3f3e7;
+}
+.applicantDetails {
+  display: grid !important;
+  gap: 4px !important;
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 11px;
+  background: white;
+  text-align: left;
+}
+.adoptionActions {
+  margin-top: 6px;
+}
 .report {
   height: 300px;
   display: flex;
@@ -450,6 +467,34 @@
   padding: 13px;
   border-radius: 10px;
   background: #faf7f2;
+}
+.notices .noticeUnread {
+  border: 1px solid #f1c5aa;
+  background: #fff8f3;
+  box-shadow: inset 3px 0 #ef7d42;
+}
+.noticeIcon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 12px;
+  background: #fff0e5;
+  color: #d86129;
+}
+.noticeIcon svg {
+  width: 20px;
+  height: 20px;
+}
+.noticeContent {
+  min-width: 0;
+  flex: 1;
+}
+.noticeContent strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.76rem;
 }
 .notices p {
   margin: 0;
@@ -1029,10 +1074,17 @@
   .sidebar nav {
     height: 100%;
     display: grid;
-    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-columns: minmax(61px, 1fr);
     grid-auto-flow: column;
     align-items: stretch;
     gap: 1px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .sidebar nav::-webkit-scrollbar {
+    display: none;
   }
   .sidebar nav button {
     width: 100%;
@@ -1046,6 +1098,7 @@
     font-size: 0.52rem;
     line-height: 1.1;
     text-align: center;
+    scroll-snap-align: center;
   }
   .sidebar nav button span {
     width: 100%;
@@ -1062,7 +1115,7 @@
     box-shadow: inset 0 3px #ef7d42;
   }
   .main {
-    padding: 18px 14px 24px;
+    padding: 16px 12px 26px;
   }
   .main > header {
     gap: 10px;
@@ -1106,8 +1159,9 @@
     grid-template-columns: 1fr;
   }
   .section {
-    padding: 16px 14px;
-    border-radius: 16px;
+    padding: 16px 13px;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(56, 45, 31, 0.045);
   }
   .section > header {
     align-items: flex-start;
@@ -1120,6 +1174,8 @@
   }
   .section > header > button {
     min-height: 44px;
+    width: 100%;
+    border-radius: 12px;
   }
   .stats {
     margin: 14px 0;
@@ -1128,35 +1184,67 @@
     font-size: 1.65rem;
   }
   .records article {
-    padding: 15px;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 16px;
+    background: #fff;
   }
   .records h3 {
-    display: grid;
-    gap: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 15px;
+    background: #293029;
+    color: white;
   }
   .records time {
     float: none;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: #ffffff14;
+    color: #f7c4a6;
+    white-space: nowrap;
   }
   .records dl {
     grid-template-columns: minmax(82px, 0.4fr) minmax(0, 1fr);
     gap: 5px 9px;
+    margin: 0;
+    padding: 15px;
+  }
+  .records dt,
+  .records dd {
+    padding-block: 4px;
+    border-bottom: 1px solid #f1ece5;
+  }
+  .records dt:last-of-type,
+  .records dd:last-of-type {
+    border-bottom: 0;
   }
   .notices article {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
     padding: 14px;
+    border-radius: 15px;
   }
   .notices article > svg {
     flex: none;
   }
   .notices p {
-    min-width: calc(100% - 36px);
+    min-width: 0;
     font-size: 0.82rem;
+    line-height: 1.5;
   }
   .notices button {
-    min-height: 40px;
-    margin-left: 30px;
-    padding: 0 8px;
+    grid-column: 2;
+    min-height: 42px;
+    margin: 2px 0 0;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #fff0e5;
+    text-align: left;
     font-weight: 750;
   }
   .report {
@@ -1223,8 +1311,9 @@
     gap: 13px;
     padding: 15px;
     border: 1px solid #eee7de;
-    border-radius: 15px;
+    border-radius: 17px;
     background: #fff;
+    box-shadow: 0 7px 20px rgba(56, 45, 31, 0.05);
   }
   .dateTile {
     width: 53px;
@@ -1274,14 +1363,18 @@
   }
   .appointmentActions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     margin-top: 9px;
     padding-top: 8px;
     border-top: 1px solid #f0ebe4;
   }
   .appointmentActions .link {
+    flex: 1;
     min-height: 40px;
-    padding: 4px 0;
+    padding: 4px 8px;
+    border-radius: 9px;
+    background: #fff0e5;
+    text-align: center;
   }
   .backdrop {
     align-items: end;
@@ -1329,10 +1422,25 @@
   }
   .adopt {
     padding: 18px;
+    overflow: hidden;
+    border: 1px solid #eee7de;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(56, 45, 31, 0.06);
   }
   .adoptionPhoto {
     width: calc(100% + 36px);
     margin: -18px -18px 16px;
+  }
+  .adopt h3 {
+    margin-top: 2px;
+    font-size: 1.25rem;
+  }
+  .adopt > button {
+    min-height: 48px;
+    border-radius: 12px;
+  }
+  .adoptionActions button {
+    min-height: 46px;
   }
   .app button,
   .app a,

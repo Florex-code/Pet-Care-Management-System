@@ -17,7 +17,18 @@
 .editPet, .deletePet { position: static !important; padding: 8px 12px !important; border-radius: 99px !important; background: rgba(255,255,255,.94) !important; font-size: .7rem !important; font-weight: 800; box-shadow: 0 5px 15px rgba(30,20,15,.14); }
 .editPet { color: #d86129 !important; }
 .deletePet { color: #a52b24 !important; }
-@media(max-width:500px){.petPhoto,.petPlaceholder{height:200px}.details{grid-template-columns:1fr 1fr}.details span:last-child{grid-column:1/-1}}
+@media(max-width:760px){
+  .petCard { border-radius: 18px !important; box-shadow: 0 8px 24px rgba(56,45,31,.08); }
+  .petCard:hover { transform: none; }
+  .petPhoto,.petPlaceholder { height: clamp(210px,58vw,270px); }
+  .petInfo { padding: 18px 16px 19px; }
+  .petInfo h3 { padding-right: 0; font-size: 1.4rem; }
+  .breed { margin-bottom: 14px !important; }
+  .petActions { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px 17px; }
+  .editPet,.deletePet { min-height: 44px; display: grid; place-items: center; border: 1px solid #eee5dc !important; border-radius: 11px !important; box-shadow: none; }
+  .deletePet { background: #fff3f1 !important; }
+}
+@media(max-width:500px){.details{grid-template-columns:1fr 1fr}.details span:last-child{grid-column:1/-1}}
 .adoptionPhoto { width: calc(100% + 46px); height: 180px; margin: -23px -23px 18px; background-position: center; background-size: cover; }
 .photoInput { display: flex; width: 100%; align-items: center; justify-content: center; margin-top: 12px; padding: 9px; border: 1px dashed #ef7d42; border-radius: 9px; color: #d86129; font-size: .75rem; font-weight: 800; cursor: pointer; }
 .photoInput input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
