@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PwaRegister } from "@/shared/components/PwaRegister";
+import { NetworkLoader } from "@/shared/components/NetworkLoader";
 import "./globals.css";
 import "../LandingPage/LandingPage.css";
 import "../Contact/ContactPage.css";
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <NetworkLoader />
         <PwaRegister />
       </body>
     </html>

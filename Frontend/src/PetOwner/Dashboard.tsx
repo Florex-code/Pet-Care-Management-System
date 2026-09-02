@@ -27,6 +27,7 @@ import {
 } from "@phosphor-icons/react";
 import { seed, SESSION_KEY } from "@/Data/store";
 import { ApiError, AUTH_TOKEN_KEY } from "@/shared/api/client";
+import { InlineLoader } from "@/shared/components/NetworkLoader";
 import {
   createAppointment,
   createAdoption,
@@ -100,6 +101,9 @@ export function Dashboard() {
     [editing, setEditing] = useState<Pet | null>(null),
     [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null),
     [feedback, setFeedback] = useState<{ text: string; error?: boolean } | null>(null),
+    [savingPet, setSavingPet] = useState(false),
+    [savingAppointment, setSavingAppointment] = useState(false),
+    [markingNotice, setMarkingNotice] = useState<string | null>(null),
     [profileOpen, setProfileOpen] = useState(false);
   useEffect(() => {
     const raw = localStorage.getItem(SESSION_KEY);
@@ -175,8 +179,10 @@ export function Dashboard() {
   }
   async function savePet(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!user) return;
-    const d = new FormData(e.currentTarget),
+    if (!user || savingPet) return;
+    setSavingPet(true);
+    try {
+      const d = new FormData(e.currentTarget),
       file = d.get("photo"),
       photo =
         file instanceof File && file.size
@@ -193,16 +199,22 @@ export function Dashboard() {
         healthStatus: String(d.get("health")),
         allergies: String(d.get("allergies")),
       };
-    const p = editing ? await updatePet(editing.id, input) : await createPet(input);
-    setStore((s) => ({
-      ...s,
-      pets: editing
-        ? s.pets.map((x) => (x.id === p.id ? p : x))
-        : [...s.pets, p],
-    }));
-    setEditing(null);
-    setModal(null);
-    setStore(await getDashboard());
+      const p = editing ? await updatePet(editing.id, input) : await createPet(input);
+      setStore((s) => ({
+        ...s,
+        pets: editing
+          ? s.pets.map((x) => (x.id === p.id ? p : x))
+          : [...s.pets, p],
+      }));
+      setEditing(null);
+      setModal(null);
+      setStore(await getDashboard());
+      showFeedback(editing ? "Pet updated successfully." : "Pet added successfully.");
+    } catch (caught) {
+      showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t save the pet.", true);
+    } finally {
+      setSavingPet(false);
+    }
   }
   async function removePet(pet: Pet) {
     if (!window.confirm(`Delete ${pet.name}? Their appointments and medical records will also be permanently deleted.`)) return;
@@ -217,6 +229,23 @@ export function Dashboard() {
       showFeedback(`${pet.name} was deleted.`);
     } catch (caught) {
       showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t delete the pet.", true);
+    }
+  }
+  async function readNotice(id: string) {
+    if (markingNotice) return;
+    setMarkingNotice(id);
+    try {
+      await markNotificationRead(id);
+      setStore((s) => ({
+        ...s,
+        notices: s.notices.map((notice) =>
+          notice.id === id ? { ...notice, read: true } : notice,
+        ),
+      }));
+    } catch (caught) {
+      showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t mark the notification as read.", true);
+    } finally {
+      setMarkingNotice(null);
     }
   }
   async function saveAdoption(e: FormEvent<HTMLFormElement>) {
@@ -239,7 +268,7 @@ export function Dashboard() {
   }
   async function book(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || savingAppointment) return;
     const d = new FormData(e.currentTarget),
       input = {
         petId: String(d.get("pet")),
@@ -248,6 +277,19 @@ export function Dashboard() {
         time: String(d.get("time")),
         reason: String(d.get("reason")),
       };
+    const scheduledFor = new Date(`${input.date}T${input.time}:00`);
+    const weekday = scheduledFor.getDay();
+    const [hours, minutes] = input.time.split(":").map(Number);
+    const timeInMinutes = hours * 60 + minutes;
+    if (Number.isNaN(scheduledFor.getTime()) || scheduledFor.getTime() <= Date.now()) {
+      showFeedback("Choose an appointment date and time in the future.", true);
+      return;
+    }
+    if (weekday === 0 || weekday === 6 || timeInMinutes < 8 * 60 || timeInMinutes > 17 * 60) {
+      showFeedback("Appointments are available Monday to Friday, 8:00 AM to 5:00 PM.", true);
+      return;
+    }
+    setSavingAppointment(true);
     try {
       if (editingAppointment) await rescheduleAppointment(editingAppointment.id, input);
       else await createAppointment(input);
@@ -257,6 +299,8 @@ export function Dashboard() {
       showFeedback(editingAppointment ? "Appointment rescheduled and sent for review." : "Appointment request submitted.");
     } catch (caught) {
       showFeedback(caught instanceof ApiError ? caught.message : "Couldn’t save the appointment.", true);
+    } finally {
+      setSavingAppointment(false);
     }
   }
   async function record(e: FormEvent<HTMLFormElement>) {
@@ -868,17 +912,12 @@ export function Dashboard() {
                       <p>{n.text}</p>
                     </div>
                     <button
-                      onClick={async () => {
-                        if (!n.read) await markNotificationRead(n.id);
-                        setStore((s) => ({
-                          ...s,
-                          notices: s.notices.map((x) =>
-                            x.id === n.id ? { ...x, read: true } : x,
-                          ),
-                        }));
-                      }}
+                      disabled={n.read || markingNotice === n.id}
+                      aria-busy={markingNotice === n.id}
+                      onClick={() => readNotice(n.id)}
                     >
-                      {n.read ? "Read" : "Mark as read"}
+                      {markingNotice === n.id && <InlineLoader />}
+                      {markingNotice === n.id ? "Marking…" : n.read ? "Read" : "Mark as read"}
                     </button>
                   </article>
                 ))}
@@ -893,6 +932,8 @@ export function Dashboard() {
           vets={store.users.filter((u) => u.role === "vet")}
           editing={editing}
           editingAppointment={editingAppointment}
+          savingPet={savingPet}
+          savingAppointment={savingAppointment}
           close={() => {
             setModal(null);
             setEditing(null);
@@ -1399,6 +1440,8 @@ function FormModal({
   vets,
   editing,
   editingAppointment,
+  savingPet,
+  savingAppointment,
   close,
   pet,
   appointment,
@@ -1411,6 +1454,8 @@ function FormModal({
   vets: User[];
   editing: Pet | null;
   editingAppointment: Appointment | null;
+  savingPet: boolean;
+  savingAppointment: boolean;
   close: () => void;
   pet: (e: FormEvent<HTMLFormElement>) => void;
   appointment: (e: FormEvent<HTMLFormElement>) => void;
@@ -1497,7 +1542,10 @@ function FormModal({
                 value={editing?.allergies || "None known"}
               />
             </div>
-            <button>Save pet</button>
+            <button type="submit" disabled={savingPet} aria-busy={savingPet}>
+              {savingPet && <span className={styles.buttonSpinner} aria-hidden="true" />}
+              {savingPet ? "Saving pet…" : "Save pet"}
+            </button>
           </form>
         )}
         {kind === "appointment" &&
@@ -1553,7 +1601,10 @@ function FormModal({
               </div>
               <Input label="Reason" name="reason" value={editingAppointment?.reason} />
               <small>Appointments are available Monday to Friday, 8:00 AM to 5:00 PM.</small>
-              <button>{editingAppointment ? "Save new schedule" : "Request appointment"}</button>
+              <button type="submit" disabled={savingAppointment} aria-busy={savingAppointment}>
+                {savingAppointment && <InlineLoader />}
+                {savingAppointment ? editingAppointment ? "Saving schedule…" : "Requesting…" : editingAppointment ? "Save new schedule" : "Request appointment"}
+              </button>
             </form>
           ))}
         {kind === "record" &&

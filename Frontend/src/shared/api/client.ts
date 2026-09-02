@@ -1,5 +1,15 @@
 const API_BASE_URL = "/api/backend";
 export const AUTH_TOKEN_KEY = "pawcare-auth-token-v1";
+let pendingRequests = 0;
+
+function reportNetworkActivity(change: 1 | -1) {
+  pendingRequests = Math.max(0, pendingRequests + change);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("pawcare:network-activity", {
+      detail: { pending: pendingRequests },
+    }));
+  }
+}
 
 export class ApiError extends Error {
   constructor(
@@ -22,28 +32,33 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
       throw new ApiError("Your session has expired. Please sign in again.", 401);
     }
   }
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init?.headers,
-    },
-  });
+  reportNetworkActivity(1);
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        ...(init?.body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init?.headers,
+      },
+    });
 
-  if (!response.ok) {
-    const body = await response.json().catch(() => null) as { message?: string; detail?: string } | null;
-    if (response.status === 401 && typeof window !== "undefined" && !path.startsWith("/v1/auth/")) {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem("pawcare-session-v2");
-      window.location.assign("/login?expired=1");
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { message?: string; detail?: string } | null;
+      if (response.status === 401 && typeof window !== "undefined" && !path.startsWith("/v1/auth/")) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem("pawcare-session-v2");
+        window.location.assign("/login?expired=1");
+      }
+      throw new ApiError(body?.message || body?.detail || `API request failed with status ${response.status}`, response.status);
     }
-    throw new ApiError(body?.message || body?.detail || `API request failed with status ${response.status}`, response.status);
-  }
 
-  if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
+    if (response.status === 204) return undefined as T;
+    return response.json() as Promise<T>;
+  } finally {
+    reportNetworkActivity(-1);
+  }
 }
 
 function tokenExpired(token: string) {

@@ -75,6 +75,10 @@
 }
 .card button {
   height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-top: 4px;
   border: 0;
   border-radius: 99px;
@@ -86,6 +90,21 @@
 .card button:disabled {
   cursor: wait;
   opacity: 0.65;
+}
+.spinner {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border: 2px solid #ffffff70;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 1.5s; }
 }
 .links {
   display: flex;

@@ -501,10 +501,16 @@
   flex: 1;
 }
 .notices button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 0;
   background: transparent;
   color: #d86129;
 }
+.notices button:disabled { cursor: default; opacity: .72; }
+.notices button[aria-busy="true"] { cursor: wait; }
 
 .feedback {
   position: fixed;
@@ -807,6 +813,25 @@
 }
 .modal form > button {
   min-height: 47px;
+}
+.modal form > button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+.buttonSpinner {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border: 2px solid #ffffff70;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: buttonSpin 0.75s linear infinite;
+}
+@keyframes buttonSpin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buttonSpinner { animation-duration: 1.5s; }
 }
 .formPrerequisite {
   display: grid;

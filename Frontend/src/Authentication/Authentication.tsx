@@ -47,7 +47,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" | "forgot" }) {
       {!(mode === "forgot" && resetToken) && <label>Email address<input name="email" type="email" required placeholder="you@example.com" autoComplete="email" /></label>}
       {mode !== "forgot" && <label>Password<input name="password" type="password" required minLength={8} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>}
       {mode === "forgot" && resetToken && <><label>New password<input name="password" type="password" required minLength={8} autoComplete="new-password" /></label><label>Confirm new password<input name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" /></label></>}
-      <button type="submit" disabled={submitting}>{submitting ? "Please wait…" : mode === "login" ? "Sign in" : mode === "register" ? "Create account" : resetToken ? "Set new password" : "Continue"}</button>
+      <button type="submit" disabled={submitting} aria-busy={submitting}>
+        {submitting && <span className={styles.spinner} aria-hidden="true" />}
+        {submitting ? "Please wait…" : mode === "login" ? "Sign in" : mode === "register" ? "Create account" : resetToken ? "Set new password" : "Continue"}
+      </button>
     </form>
     {message && <p className={styles.success}>{message}</p>}{error && <p className={styles.error}>{error}</p>}
     <div className={styles.links}>{mode === "login" ? <><Link href="/forgot-password">Forgot password?</Link><Link href="/register">Create account</Link></> : <Link href="/login">Back to sign in</Link>}</div>
